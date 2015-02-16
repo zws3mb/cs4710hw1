@@ -1,10 +1,23 @@
 __author__ = 'Zachary'
 from brain import brain
-
+class node:
+    def __init__(self,left,right,value):
+        self.left=left
+        self.right=right
+        self.value=value
 class Parser:
     def __init__(self,brain):
         self.commands={'Teach':brain.teach,'List':brain.lister,'Learn':brain.learn,'Query':brain.query,'Why':brain.why}
     def refine(self,instring):
+        leftstack=[]
+        rightstack=[]
+        while '(' in instring:
+            leftstack.append(instring.find('('))
+        while ')' in instring:
+            rightstack.append(instring.find(')'))
+        while(len(rightstack)>0):
+            minitree=self.refine(instring[max(leftstack):min(rightstack)+1])
+
         return instring
 
     def parse(self,instring):
