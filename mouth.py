@@ -1,12 +1,49 @@
 __author__ = 'Zachary'
 from brain import brain
-
+class node:
+    def __init__(self,left,right,value):
+        self.left=left
+        self.right=right
+        self.value=value
+    def __str__(self):
+        return str(self.left)+'-'+'*'+str(self.value).upper()+'*'+'-'+str(self.right)
+        #return str(self.value)+'\r'+str(self.left)+'\t'+str(self.right)
+    __repr__=__str__
 class Parser:
     def __init__(self,brain):
         self.commands={'Teach':brain.teach,'List':brain.lister,'Learn':brain.learn,'Query':brain.query,'Why':brain.why}
-    def refine(self,instring):
-        return instring
-
+        self.brain=brain
+    def refine(self,instring,nodestack):
+        print 'Refining:'+instring
+        for i in range(0,len(instring)):
+            if instring[i] =='(':
+                subtree=self.refine(instring[i+1:],nodestack)
+                nodestack.append(subtree)
+                break
+            if instring[i] ==')':
+                pass
+            elif instring[i]=='!':
+                subtree=node(self.refine(instring[:i],nodestack),self.refine(instring[i+1:],nodestack),'!')
+                nodestack.append(subtree)
+            elif instring[i] == '&':
+                subtree=node(nodestack.pop(),self.refine(instring[i+1:],nodestack),'&')
+                nodestack.append(subtree)
+                break
+            elif instring[i] == '|':
+                subtree=node(nodestack.pop(),self.refine(instring[i+1:],nodestack),'|')
+                nodestack.append(subtree)
+                break
+            else:
+                if len(nodestack) >0:
+                    ctree=nodestack.pop()
+                    if ctree.left == None:
+                        ctree.left=instring[i]
+                    elif ctree.right==None:
+                        ctree.right=instring[i]
+                else:
+                    ctree=node(None,None,instring[i])
+                nodestack.append(ctree)
+        return nodestack.pop()
     def parse(self,instring):
         args=list()
         expressions=instring.split('\"')
@@ -22,7 +59,8 @@ class Parser:
         command=words[0]
         for word in reversed(words[1:len(words)]):
             if '&' in word or '|' in word or '!' in word:
-                args.insert(0,self.refine(word))
+                args.insert(0,self.refine(word,[]))
+                print args
             else:
                 args.insert(0,word)
         return self.direct(command,args)

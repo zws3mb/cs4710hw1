@@ -31,7 +31,7 @@ class brain:
                 pass
         return instring
     def query(self,instring):
-        return instring
+        return str(instring)
     def why(self,instring):
         return instring
     def express(self,instring):
