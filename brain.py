@@ -1,4 +1,5 @@
 __author__ = 'Zachary'
+
 class brain:
     def __init__(self):
         self.var_map={}
@@ -52,14 +53,19 @@ class brain:
         self.thought+=' '+val
     def inorder(self,node,exp):
         if node is not None:
+            self.gather('(')
             self.inorder(node.left, exp)
             self.gather(str(self.convert(node.value)))
             self.inorder(node.right, exp)
+            self.gather(')')
     def evaluate_tree(self,ptree):
         exp=''
         current=ptree
         stack=[]
-        self.inorder(ptree,exp)
+        if isinstance(current,basestring):
+            self.gather(str(self.convert(current)))
+        else:
+            self.inorder(ptree,exp)
         #
         # while(current.value!=None):
         #

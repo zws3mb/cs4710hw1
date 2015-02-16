@@ -23,8 +23,16 @@ class Parser:
             if instring[i] ==')':
                 pass
             elif instring[i]=='!':
-                subtree=node(self.refine(instring[:i],nodestack),self.refine(instring[i+1:],nodestack),'!')
-                nodestack.append(subtree)
+                if len(nodestack)>0:
+                    ctree=nodestack.pop()
+                    if ctree.left ==None:
+                        ctree.left=node(None,self.refine(instring[i+1:],nodestack),'!')
+                    elif ctree.right==None:
+                        ctree.right=node(None,self.refine(instring[i+1:],nodestack),'!')
+                else:
+                    ctree=node(None,self.refine(instring[i+1:],nodestack),'!')
+                nodestack.append(ctree)
+                break
             elif instring[i] == '&':
                 subtree=node(nodestack.pop(),self.refine(instring[i+1:],nodestack),'&')
                 nodestack.append(subtree)
