@@ -70,6 +70,8 @@ class Parser:
             if '&' in word or '|' in word or '!' in word:
                 args.insert(0,self.refine(word,[]))
                 print args
+            elif '(' in word and ')' in word:
+                args.insert(0,word[word.rfind('(')+1:word.find(')')])
             else:
                 args.insert(0,word)
         return self.direct(command,args)

@@ -62,6 +62,7 @@ class brain:
         exp=''
         current=ptree
         stack=[]
+        print 'Evaluating:'+str(ptree)
         if isinstance(current,basestring):
             self.gather(str(self.convert(current)))
         else:
