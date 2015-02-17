@@ -1,0 +1,13 @@
+Teach A = "Alcohol"
+Teach U = "Underage"
+Teach O = "Overage"
+Teach B = "In Bar"
+Teach D = "Drunk"
+Teach D -> O
+Teach D -> A
+Teach !O -> U
+Teach A -> B
+Teach B -> D
+Teach A = True
+Query B^D
+Query U|B
