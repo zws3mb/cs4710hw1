@@ -5,9 +5,8 @@ class brain:
         self.var_map={}
         self.known_table={}
         self.working_mem=[]
+        self.stack = []
         self.order_q=[]
-        self.order_v_q=[]
-        self.orig_rule_exp=[]
         self.op_dict={'&':'and','|':'or','!':'not'}
         self.thought=''
     def teach(self,instring):
@@ -18,56 +17,106 @@ class brain:
             return 'Assignment'+str(instring)
         elif '=' in instring:
             self.known_table[instring[0]]=eval(instring[2])
-            self.order_v_q.append(instring[0])
+
         else:
             if '->' in instring:
                 self.working_mem.append((instring[0],instring[2]))
                 return 'Rule'+str(instring)
         return 'Teach branch'+str(instring)
     def lister(self,instring):
-        outstring='Variables:\n'
-        for v in self.order_q:
-            outstring+='\t'+v+' = '+self.var_map[v]+'\n'
-        outstring+='\nFacts:\n'
-        for v in self.order_v_q:
-            outstring+='\t'+v+'\n'
-        outstring+='\nRules:'+'\n'
-        for i in range(0,len(self.working_mem)):
-            outstring+='\t'+str(self.orig_rule_exp[i])+' -> '+self.working_mem[i][1]+'\n'
-        #print outstring
-        return outstring
-
-        #return str(self.var_map)+' '+str(self.known_table)
+        return str(self.var_map)+' '+str(self.known_table)
     def learn(self,instring):
-        change=True
-        while change:
-            change=False
-            for item in self.working_mem:
-                prop1, prop2 = item
-                if prop1 in self.known_table:
-                    if self.known_table[prop1] and not self.known_table[prop2]:
-                        print str(prop2)+' is now True.'
-                        change=True
-                        self.known_table[prop2]=True
-                        self.order_v_q.append(prop2)
-                # elif prop2 in self.known_table:
-                #     if not self.known_table[prop2]:
-                #         print str(prop1)+'is now False.'
-                #         self.known_table[prop1]=False
-                elif eval(self.evaluate_tree(prop1)) and not self.known_table[prop2]:
-                    print str(prop2)+' is now True.'
-                    change=True
+
+        for item in self.working_mem:
+            prop1, prop2 = item
+            if prop1 in self.known_table:
+                if self.known_table[prop1]:
                     self.known_table[prop2]=True
-                    self.order_v_q.append(prop2)
+            else:
+                # do stuff
+                pass
+        return instring
+
+
+    def back_chain(self, value):
+
+        self.thought = ""
+        for x in self.working_mem:
+
+            str(x)
+
+            if x[1] == value:
+
+                print str(x[0]) + " is an expression with consequence " + str(value)
+
+                self.evaluate_tree(x[0])
+                print self.thought
+                if(eval(self.thought)):
+                    self.thought = ""
+                    return True
                 else:
-                    # do stuff
-                    pass
-        return self.lister('dummy')
+                    print "No dice on this expression as is, let's query this expression though"
+                    self.thought = ""
+                    return self.query_call(x[0])
+
+
+    def query_call(self,instring):
+
+                #Reset thought
+        self.thought=''
+        current=instring[0]
+        print str(instring)
+
+        stack=[]
+
+
+        lookthrough = (str(instring[0]).split("-"))
+
+        print str(lookthrough)
+        #Look through each node
+        for x in lookthrough:
+
+            #If it's not a Expression or None
+            if x != "None" and x != "*&*" and x != "*!*" and x != "*|*":
+
+
+                if(self.known_table[x]!=None):
+
+                    if(self.known_table[x]==False):
+
+                        print "We are going to backchain to find: " + str(x)
+
+
+                        boolean = self.back_chain(x)
+
+                        if(boolean):
+
+                            print "We have succesfully found something that fucks up our notion of what to do with " + str(x)
+                            #update everything
+                            temporary = [str(x), "=", "True"]
+                            self.stack.append(x)
+                            self.teach(temporary)
+                            return True
+
+        return False
+
+
+
+
+
     def query(self,instring):
         current=instring[0]
-        stack=[]
+
+        self.query_call(instring)
+        self.thought = ""
         self.evaluate_tree(current)
-        print str(self.thought)+'=>'
+
+        for x in self.stack:
+            temporary = [str(x), "=", "False"]
+
+            self.teach(temporary)
+
+
         return 'I THINK:'+str(eval(self.thought))
     def convert(self,instr):
         if instr in self.op_dict:
@@ -88,11 +137,9 @@ class brain:
             self.inorder(node.right, exp)
             self.gather(')')
     def evaluate_tree(self,ptree):
-        self.thought=''
         exp=''
         current=ptree
         stack=[]
-        print 'Evaluating:'+str(ptree)
         if isinstance(current,basestring):
             self.gather(str(self.convert(current)))
         else:
@@ -112,7 +159,7 @@ class brain:
         #         current=stack.pop()
         #     else:
         #         break
-        return self.thought
+        print self.thought
 
     def why(self,instring):
         return instring
