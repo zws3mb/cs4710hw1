@@ -39,22 +39,29 @@ class brain:
 
         #return str(self.var_map)+' '+str(self.known_table)
     def learn(self,instring):
-        for item in self.working_mem:
-            prop1, prop2 = item
-            if prop1 in self.known_table:
-                if self.known_table[prop1]:
+        change=True
+        while change:
+            change=False
+            for item in self.working_mem:
+                prop1, prop2 = item
+                if prop1 in self.known_table:
+                    if self.known_table[prop1] and not self.known_table[prop2]:
+                        print str(prop2)+' is now True.'
+                        change=True
+                        self.known_table[prop2]=True
+                        self.order_v_q.append(prop2)
+                # elif prop2 in self.known_table:
+                #     if not self.known_table[prop2]:
+                #         print str(prop1)+'is now False.'
+                #         self.known_table[prop1]=False
+                elif eval(self.evaluate_tree(prop1)) and not self.known_table[prop2]:
                     print str(prop2)+' is now True.'
+                    change=True
                     self.known_table[prop2]=True
-            # elif prop2 in self.known_table:
-            #     if not self.known_table[prop2]:
-            #         print str(prop1)+'is now False.'
-            #         self.known_table[prop1]=False
-            elif eval(self.evaluate_tree(prop1)):
-                print str(prop2)+' is now True.'
-                self.known_table[prop2]=True
-            else:
-                # do stuff
-                pass
+                    self.order_v_q.append(prop2)
+                else:
+                    # do stuff
+                    pass
         return self.lister('dummy')
     def query(self,instring):
         current=instring[0]
