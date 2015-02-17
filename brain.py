@@ -28,17 +28,23 @@ class brain:
             prop1, prop2 = item
             if prop1 in self.known_table:
                 if self.known_table[prop1]:
+                    print str(prop2)+' is now True.'
                     self.known_table[prop2]=True
+            # elif prop2 in self.known_table:
+            #     if not self.known_table[prop2]:
+            #         print str(prop1)+'is now False.'
+            #         self.known_table[prop1]=False
+            elif eval(self.evaluate_tree(prop1)):
+                print str(prop2)+' is now True.'
+                self.known_table[prop2]=True
             else:
                 # do stuff
                 pass
-        return instring
+        return self.lister('dummy')
     def query(self,instring):
-        self.thought=''
         current=instring[0]
         stack=[]
         self.evaluate_tree(current)
-
         return 'I THINK:'+str(eval(self.thought))
     def convert(self,instr):
         if instr in self.op_dict:
@@ -59,6 +65,7 @@ class brain:
             self.inorder(node.right, exp)
             self.gather(')')
     def evaluate_tree(self,ptree):
+        self.thought=''
         exp=''
         current=ptree
         stack=[]
@@ -82,7 +89,7 @@ class brain:
         #         current=stack.pop()
         #     else:
         #         break
-        print self.thought
+        return self.thought
 
     def why(self,instring):
         return instring

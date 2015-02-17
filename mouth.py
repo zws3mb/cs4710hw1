@@ -65,7 +65,7 @@ class Parser:
             rest=instring
 
         words=rest.split(' ')
-        command=words[0]
+        command=words[0].lower().capitalize()
         for word in reversed(words[1:len(words)]):
             if '&' in word or '|' in word or '!' in word:
                 args.insert(0,self.refine(word,[]))
