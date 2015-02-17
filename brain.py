@@ -54,7 +54,7 @@ class brain:
                 #     if not self.known_table[prop2]:
                 #         print str(prop1)+'is now False.'
                 #         self.known_table[prop1]=False
-                elif eval(self.evaluate_tree(prop1)) and not self.known_table[prop2]:
+                elif eval(self.evaluate_tree(prop1,'Learn')) and not self.known_table[prop2]:
                     print str(prop2)+' is now True.'
                     change=True
                     self.known_table[prop2]=True
@@ -66,52 +66,73 @@ class brain:
     def query(self,instring):
         current=instring[0]
         stack=[]
-        self.evaluate_tree(current)
+        self.evaluate_tree(current,'Query')
         print str(self.thought)+'=>'
         return 'I THINK:'+str(eval(self.thought))
-    def convert(self,instr):
-        if instr in self.op_dict:
-            return self.op_dict[instr]
-        elif instr in self.known_table:
-            return self.known_table[instr]
-        elif instr in self.var_map:
-            return self.var_map[instr]
-        elif instr in self.working_mem:
-            return self.working_mem[instr]
+    def backchain(self,instr):
+        for p1,p2 in self.working_mem:
+            if instr == p2:
+                tobeval=[]
+                self.bevaluate_tree(p1,tobeval)
+                return eval(''.join(tobeval))
+        return False
+    def bevaluate_tree(self,ptree,tobeval):
+        current=ptree
+        print 'Evaluating:'+str(ptree)
+        if isinstance(current,basestring):
+            self.back_thought(str(self.convert(current,'Query')),tobeval)
+        else:
+            self.inorder_back(ptree,tobeval)
+
+    def back_thought(self,val,tobeval):
+        tobeval+=val
+    def inorder_back(self,node,tobeval):
+        if node is not None:
+            self.back_thought('(',tobeval)
+            self.inorder_back(node.left, tobeval)
+            self.back_thought(str(self.convert(node.value,'Query')),tobeval)
+            self.inorder_back(node.right, tobeval)
+            self.back_thought(')',tobeval)
+
+    def convert(self,instr,flag):
+        if flag =='Learn':
+            if instr in self.op_dict:
+                return self.op_dict[instr]
+            elif instr in self.known_table:
+                return self.known_table[instr]
+            # elif instr in self.var_map:
+            #     return self.var_map[instr]
+            elif instr in self.working_mem:
+                return self.working_mem[instr]
+        elif flag=='Query':
+            if instr in self.op_dict:
+                return self.op_dict[instr]
+            elif instr in self.known_table:
+                if self.known_table[instr]:
+                    return self.known_table[instr]
+                else:
+                    return self.backchain(instr)
+            # elif instr in self.var_map:
+            #     return self.var_map[instr]
+            # elif instr in self.working_mem:
+            #     return self.working_mem[instr]
     def gather(self,val):
         self.thought+=' '+val
     def inorder(self,node,exp):
         if node is not None:
             self.gather('(')
             self.inorder(node.left, exp)
-            self.gather(str(self.convert(node.value)))
+            self.gather(str(self.convert(node.value,exp)))
             self.inorder(node.right, exp)
             self.gather(')')
-    def evaluate_tree(self,ptree):
+    def evaluate_tree(self,ptree,exp):
         self.thought=''
-        exp=''
         current=ptree
-        stack=[]
         print 'Evaluating:'+str(ptree)
         if isinstance(current,basestring):
-            self.gather(str(self.convert(current)))
+            self.gather(str(self.convert(current,exp)))
         else:
             self.inorder(ptree,exp)
-        #
-        # while(current.value!=None):
-        #
-        #     # stack.append(current)
-        #     if current.left !=None:
-        #         stack.append(current.left)
-        #         #print current.left
-        #     exp+=' '+str(self.convert(current.value))
-        #     if current.right !=None:
-        #         stack.append(current.right)
-        #         #print current.right
-        #     if len(stack)>0:
-        #         current=stack.pop()
-        #     else:
-        #         break
         return self.thought
 
     def why(self,instring):
