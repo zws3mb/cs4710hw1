@@ -1,5 +1,5 @@
 Nick Lytle (nal3gc)
-Zach Seid (zws3mb)
+Zachary Seid (zws3mb)
 
 Running the code:
 
