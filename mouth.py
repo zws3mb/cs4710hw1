@@ -11,7 +11,7 @@ class node:
     __repr__=__str__
 class Parser:
     def __init__(self,brain):
-        self.commands={'Teach':brain.teach,'List':brain.lister,'Learn':brain.learn,'Query':brain.query,'Why':brain.why}
+        self.commands={'Teach':brain.teach,'List':brain.lister,'Learn':brain.learn,'Query':brain.query,'Why':brain.why,'Clear':brain.clear}
         self.brain=brain
     def refine(self,instring,nodestack):
         print 'Refining:'+instring
@@ -69,8 +69,9 @@ class Parser:
             self.brain.orig_rule_exp.append(words[words.index('->')-1])
         command=words[0].lower().capitalize()
         for word in reversed(words[1:len(words)]):
+            if command=='Why':
+                brain.whyexp=word
             if '&' in word or '|' in word or '!' in word:
-
                 args.insert(0,self.refine(word,[]))
                 print args
             elif '(' in word and ')' in word:

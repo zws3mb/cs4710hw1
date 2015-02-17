@@ -1,20 +1,9 @@
 __author__ = 'Zachary'
-class listtrack(list):
-    state=0
-    def __init__(self):
-        self.step=[]
-        self.phrase={0:'I KNOW THAT ',1:'BECAUSE',2:'I THUS KNOW THAT',3:'I KNOW IT IS NOT TRUE THAT',4:'BECAUSE IT IS NOT TRUE THAT',5:'THUS I CANNOT PROVE THAT'}
-        super(listtrack,self).__init__()
-    def append(self, p_object):
-        self.step.append(self.phrase[listtrack.state]+'('+p_object+')')
-        super(listtrack,self).append(p_object)
-    def __iadd__(self, other):
-        self.step.append(self.phrase[listtrack.state]+'('+other+')')
-        super(listtrack,self).__iadd__(other)
 
 class brain:
 
     def __init__(self):
+        self.whyexp=''
         self.var_map={}
         self.known_table={}
         self.working_mem=[]
@@ -26,7 +15,7 @@ class brain:
         self.subconscious=[]
 
     def teach(self,instring):
-        if '=' in instring and instring[2] !='True' and instring[2] !='False':
+        if '=' in instring and instring[2] !='true' and instring[2] !='false':
             if instring[0] not in self.known_table:
                 #print "This is new to me"
                 self.var_map[instring[0]]=instring[2]
@@ -41,9 +30,9 @@ class brain:
             if instring[0] not in self.known_table:
                 return "Error: Variable " + str(instring[0]) + " must be declared first before given value."
 
-            self.known_table[instring[0]]=eval(instring[2])
+            self.known_table[instring[0]]=eval(instring[2].capitalize())
 
-            if(eval(instring[2]) and instring[0] not in self.order_v_q):
+            if(eval(instring[2].capitalize()) and instring[0] not in self.order_v_q):
                 self.order_v_q.append(instring[0])
             else:
                 self.order_v_q.remove(instring[0])
@@ -148,12 +137,13 @@ class brain:
             elif instr in self.working_mem:
                 return self.working_mem[instr]
         elif flag=='Query':
-            self.subconscious.append('\n')
+            # self.subconscious.append('\n')
             if instr in self.op_dict:
+                self.subconscious.append(self.op_dict[instr].upper()+' ')
                 return self.op_dict[instr]
             elif instr in self.known_table:
                 if self.known_table[instr]:
-                    self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+')')
+                    self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+') \n')
                     return self.known_table[instr]
                 else:
                     val=self.backchain(instr)
@@ -187,7 +177,21 @@ class brain:
 
         return self.thought
 
-
+    def instring_to_english(self,instring):
+        out='('
+        for v in instring:
+            if v in self.var_map:
+                out+=self.var_map[v]
+            elif v == '!':
+                out+=' NOT'
+            elif v == '&':
+                out+=' AND'
+            elif v == '|':
+                out+='OR'
+            else:
+                out+=v
+        out+=')'
+        return out
     def why(self,instring):
         self.subconscious=[]
         tobeval=[]
@@ -195,22 +199,29 @@ class brain:
 
         output=eval(''.join(tobeval))
         if output:
-            self.subconscious.append('I KNOW THAT ')
-            self.subconscious.append(str(output))
+            self.subconscious.append('THUS I KNOW THAT '+self.instring_to_english(self.whyexp))
+            self.subconscious.insert(0,str(output)+'\n')
         else:
-            self.subconscious.append('I KNOW IT IS NOT TRUE THAT')
-            self.subconscious.append(str(output))
+            self.subconscious.append('THUS I KNOW IT IS NOT TRUE THAT '+self.instring_to_english(self.whyexp))
+            self.subconscious.insert(0,str(output)+'\n')
         reversed=[i for i in self.subconscious[::-1]]
         #print self.subconscious
-        return ''.join(reversed)
+        return ''.join(self.subconscious)
 
     def clear(self,instring):
-        if instring == 'Yes':
-            self.var_map={}
-            self.known_table={}
-            self.working_mem=[]
-            self.order_q=[]
-            self.order_v_q=[]
-            self.orig_rule_exp=[]
-            self.op_dict={'&':'and','|':'or','!':'not'}
-            self.thought=''
+        try:
+            arg=instring[0]
+            if arg.upper() == 'YES':
+                self.var_map={}
+                self.known_table={}
+                self.working_mem=[]
+                self.order_q=[]
+                self.order_v_q=[]
+                self.orig_rule_exp=[]
+                self.op_dict={'&':'and','|':'or','!':'not'}
+                self.thought=''
+                return 'Done'
+            return 'Not cleared.'
+        except:
+            pass
+
