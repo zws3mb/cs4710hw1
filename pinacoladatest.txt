@@ -1,0 +1,20 @@
+Teach P = "Like Pina Coladas"
+Teach G = "Getting Caught in the Rain"
+Teach Y = "Into Yoga"
+Teach C = "Into Champagne"
+Teach M = "Meet you by tomorrow noon"
+Teach E = "Escape"
+Teach O = "O'Mally's"
+Teach P&G&!Y&C -> M
+Teach M&O -> E
+Teach P = True
+Teach G = True
+Learn
+Teach C = True
+Query M
+Query E
+Why M
+Why E
+List
+Learn
+List
