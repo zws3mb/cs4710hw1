@@ -68,16 +68,21 @@ class brain:
                 prop1, prop2 = item
                 if prop1 in self.known_table:
                     if self.known_table[prop1] and not self.known_table[prop2]:
+                        #print "This is the one"
                         print str(prop2)+' is now True.'
                         change=True
-                        self.known_table[prop2]=True
+                        self.known_table[prop2] = True
+                        #print(self.known_table[prop2])
                         self.order_v_q.append(prop2)
                 # elif prop2 in self.known_table:
                 #     if not self.known_table[prop2]:
                 #         print str(prop1)+'is now False.'
                 #         self.known_table[prop1]=False
-                elif eval(self.evaluate_tree(prop1,'Learn')) and not self.known_table[prop2]:
+                elif eval(self.evaluate_tree(prop1,'Learn')) and (not self.known_table[prop2]):
                     print str(prop2)+' is now True.'
+                    self.known_table[prop2] = True
+                    self.order_v_q.append(prop2)
+
                     change=True
                 else:
                     # do stuff
