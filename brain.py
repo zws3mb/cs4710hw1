@@ -60,6 +60,7 @@ class brain:
         current=instring[0]
         stack=[]
         self.evaluate_tree(current)
+        print str(self.thought)+'=>'
         return 'I THINK:'+str(eval(self.thought))
     def convert(self,instr):
         if instr in self.op_dict:
