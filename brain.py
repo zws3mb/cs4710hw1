@@ -13,8 +13,10 @@ class brain:
         self.op_dict={'&':'and','|':'or','!':'not'}
         self.thought=''
         self.subconscious=[]
+        self.currentop=None
 
     def teach(self,instring):
+        self.currentop='Teach'
         if '=' in instring and instring[2] !='true' and instring[2] !='false':
             if instring[0] not in self.known_table:
                 #print "This is new to me"
@@ -45,6 +47,7 @@ class brain:
         return 'Teach branch'+str(instring)
 
     def lister(self,instring):
+        self.currentop='List'
         outstring='Variables:\n'
         for v in self.order_q:
             outstring+='\t'+v+' = '+self.var_map[v]+'\n'
@@ -57,6 +60,7 @@ class brain:
         #print outstring
         return outstring
     def learn(self,instring):
+        self.currentop='Learn'
         change=True
         while change:
             change=False
@@ -83,14 +87,15 @@ class brain:
 
 
     def query(self,instring):
+        self.currentop='Query'
         current=instring[0]
         self.evaluate_tree(current,'Query')
         print str(self.thought)+'=>'
         return 'I THINK:'+str(eval(self.thought))
     def get_rule_string(self,exp):
         for i in range(0,len(self.working_mem)):
-            if exp == self.working_mem[i][1]:
-                return str(self.orig_rule_exp[i])+' -> '+self.working_mem[i][1]+'\n'
+            if exp == self.working_mem[i][0]:
+                return self.instring_to_english(str(self.orig_rule_exp[i]))
         return 'Error in Rulefind'
 
     def backchain(self,instr):
@@ -102,11 +107,11 @@ class brain:
                 self.bevaluate_tree(p1,tobeval)
                 outcome= eval(''.join(tobeval))
                 if outcome:
-                    self.subconscious.append('BECAUSE ')
+                    self.subconscious.append('BECAUSE '+self.get_rule_string(p1))
                 else:
-                    self.subconscious.append('BECAUSE IT IS NOT TRUE THAT ')#('+self.get_rule_string(p1)+'->'+self.var_map[p2]+')')
+                    self.subconscious.append('BECAUSE IT IS NOT TRUE THAT '+self.get_rule_string(p1))#('+self.get_rule_string(p1)+'->'+self.var_map[p2]+')')
                 return outcome
-        return False
+        return 'NORULE'
     def bevaluate_tree(self,ptree,tobeval):
         current=ptree
         print 'Evaluating:'+str(ptree)
@@ -139,15 +144,29 @@ class brain:
         elif flag=='Query':
             # self.subconscious.append('\n')
             if instr in self.op_dict:
-                self.subconscious.append(self.op_dict[instr].upper()+' ')
+                #self.subconscious.append(self.op_dict[instr].upper()+' ')
                 return self.op_dict[instr]
             elif instr in self.known_table:
-                if self.known_table[instr]:
-                    self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+') \n')
-                    return self.known_table[instr]
-                else:
+                if self.currentop=='Query':
+                    if self.known_table[instr]:
+                        self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+') \n')
+                        return self.known_table[instr]
+                    else:
+                        val=self.backchain(instr)
+                        if val:
+                            self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+')')
+                        else:
+                            self.subconscious.append('I CANNOT PROVE ('+self.var_map[instr]+')')
+                        return val
+                elif self.currentop=='Why':
                     val=self.backchain(instr)
-                    if val:
+                    if val=='NORULE':
+                        if self.known_table[instr]:
+                            self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+') \n')
+                        else:
+                            self.subconscious.append('I CANNOT PROVE ('+self.var_map[instr]+') \n')
+                        return self.known_table[instr]
+                    elif val:
                         self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+')')
                     else:
                         self.subconscious.append('I CANNOT PROVE ('+self.var_map[instr]+')')
@@ -183,32 +202,36 @@ class brain:
             if v in self.var_map:
                 out+=self.var_map[v]
             elif v == '!':
-                out+=' NOT'
+                out+=' NOT '
             elif v == '&':
-                out+=' AND'
+                out+=' AND '
             elif v == '|':
-                out+='OR'
+                out+=' OR '
             else:
                 out+=v
         out+=')'
         return out
     def why(self,instring):
+        self.currentop='Why'
         self.subconscious=[]
         tobeval=[]
         self.bevaluate_tree(instring[0],tobeval)
 
         output=eval(''.join(tobeval))
         if output:
-            self.subconscious.append('THUS I KNOW THAT '+self.instring_to_english(self.whyexp))
+            if len(self.subconscious)>1:
+                self.subconscious.append('THUS I KNOW THAT '+self.instring_to_english(self.whyexp))
             self.subconscious.insert(0,str(output)+'\n')
         else:
-            self.subconscious.append('THUS I KNOW IT IS NOT TRUE THAT '+self.instring_to_english(self.whyexp))
+            if len(self.subconscious)>1:
+                self.subconscious.append('THUS I KNOW IT IS NOT TRUE THAT '+self.instring_to_english(self.whyexp))
             self.subconscious.insert(0,str(output)+'\n')
         reversed=[i for i in self.subconscious[::-1]]
         #print self.subconscious
         return ''.join(self.subconscious)
 
     def clear(self,instring):
+        self.currentop='Clear'
         try:
             arg=instring[0]
             if arg.upper() == 'YES':
