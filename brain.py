@@ -24,20 +24,31 @@ class brain:
         self.op_dict={'&':'and','|':'or','!':'not'}
         self.thought=''
         self.subconscious=[]
+
     def teach(self,instring):
         if '=' in instring and instring[2] !='True' and instring[2] !='False':
-            self.var_map[instring[0]]=instring[2]
-            self.known_table[instring[0]]=False
-            self.order_q.append(instring[0])
-            return 'Assignment'+str(instring)
+            if instring[0] not in self.known_table:
+                #print "This is new to me"
+                self.var_map[instring[0]]=instring[2]
+                self.known_table[instring[0]]=False
+                self.order_q.append(instring[0])
+                return 'Assignment'+str(instring)
+
+            else:
+                print "Error: Variable " + str(instring[0]) + " already declared."
         elif '=' in instring:
             self.known_table[instring[0]]=eval(instring[2])
-            self.order_v_q.append(instring[0])
+
+            if(eval(instring[2]) and instring[0] not in self.order_v_q):
+                self.order_v_q.append(instring[0])
+            else:
+                self.order_v_q.remove(instring[0])
         else:
             if '->' in instring:
                 self.working_mem.append((instring[0],instring[2]))
                 return 'Rule'+str(instring)
         return 'Teach branch'+str(instring)
+
     def lister(self,instring):
         outstring='Variables:\n'
         for v in self.order_q:
