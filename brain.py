@@ -36,8 +36,6 @@ class brain:
             outstring+='\t'+str(self.orig_rule_exp[i])+' -> '+self.working_mem[i][1]+'\n'
         #print outstring
         return outstring
-
-        #return str(self.var_map)+' '+str(self.known_table)
     def learn(self,instring):
         change=True
         while change:
@@ -57,18 +55,19 @@ class brain:
                 elif eval(self.evaluate_tree(prop1,'Learn')) and not self.known_table[prop2]:
                     print str(prop2)+' is now True.'
                     change=True
-                    self.known_table[prop2]=True
-                    self.order_v_q.append(prop2)
                 else:
                     # do stuff
                     pass
         return self.lister('dummy')
+
+
+
     def query(self,instring):
         current=instring[0]
-        stack=[]
         self.evaluate_tree(current,'Query')
         print str(self.thought)+'=>'
         return 'I THINK:'+str(eval(self.thought))
+
     def backchain(self,instr):
         for p1,p2 in self.working_mem:
             if instr == p2:
@@ -125,6 +124,7 @@ class brain:
             self.gather(str(self.convert(node.value,exp)))
             self.inorder(node.right, exp)
             self.gather(')')
+
     def evaluate_tree(self,ptree,exp):
         self.thought=''
         current=ptree
@@ -133,7 +133,9 @@ class brain:
             self.gather(str(self.convert(current,exp)))
         else:
             self.inorder(ptree,exp)
+
         return self.thought
+
 
     def why(self,instring):
         return instring
