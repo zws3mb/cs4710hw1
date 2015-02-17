@@ -68,6 +68,8 @@ class Parser:
         command=words[0].lower().capitalize()
         for word in reversed(words[1:len(words)]):
             if '&' in word or '|' in word or '!' in word:
+                if command == 'Teach':
+                    self.brain.orig_rule_exp.append(word)
                 args.insert(0,self.refine(word,[]))
                 print args
             elif '(' in word and ')' in word:

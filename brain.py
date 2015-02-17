@@ -6,6 +6,8 @@ class brain:
         self.known_table={}
         self.working_mem=[]
         self.order_q=[]
+        self.order_v_q=[]
+        self.orig_rule_exp=[]
         self.op_dict={'&':'and','|':'or','!':'not'}
         self.thought=''
     def teach(self,instring):
@@ -16,13 +18,26 @@ class brain:
             return 'Assignment'+str(instring)
         elif '=' in instring:
             self.known_table[instring[0]]=eval(instring[2])
+            self.order_v_q.append(instring[0])
         else:
             if '->' in instring:
                 self.working_mem.append((instring[0],instring[2]))
                 return 'Rule'+str(instring)
         return 'Teach branch'+str(instring)
     def lister(self,instring):
-        return str(self.var_map)+' '+str(self.known_table)
+        outstring='Variables:\n'
+        for v in self.order_q:
+            outstring+='\t'+v+' = '+self.var_map[v]+'\n'
+        outstring+='\nFacts:\n'
+        for v in self.order_v_q:
+            outstring+='\t'+v+'\n'
+        outstring+='\nRules:'+'\n'
+        for i in range(0,len(self.working_mem)):
+            outstring+='\t'+str(self.orig_rule_exp[i])+' -> '+self.working_mem[i][1]+'\n'
+        #print outstring
+        return outstring
+
+        #return str(self.var_map)+' '+str(self.known_table)
     def learn(self,instring):
         for item in self.working_mem:
             prop1, prop2 = item
