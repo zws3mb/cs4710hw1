@@ -1,0 +1,83 @@
+Nick Lytle (nal3gc)
+Zach Seid (zws3mb)
+
+Running the code:
+
+python mouth.py
+
+
+Input/Output Scheme:
+
+
+1) Teach <VAR > = <STRING> 
+
+Example: 
+
+in: Teach S = “Sam likes Ice Cream”
+out: None
+
+Note: Once declared, variable cannot be redefined as new value.
+
+2) Teach <VAR> = <BOOL> 
+
+Example: 
+
+in: Teach S = true
+out: None
+
+Note: <VAR> must be declared first in 1) Before it can be assigned a true/false value.
+
+3) Teach <EXP> -> <VAR> 
+
+Example: 
+
+in: Teach S -> V
+out: None
+
+Note: Right-hand side can only be declared variable.
+
+4) List
+
+Example:
+
+in: List
+out:
+
+Variables:
+	X = This
+	Y = That
+
+Facts:
+	X
+
+Rules:
+	X -> Y
+
+5) Learn
+
+Example:
+
+in: Learn
+out:
+Y is now True.
+Variables:
+	X = This
+	Y = That
+
+Facts:
+	X
+	Y
+
+Rules:
+	X -> Y
+
+6) Query
+
+Ex:
+in: Query X&!Y
+
+
+
+
+
+

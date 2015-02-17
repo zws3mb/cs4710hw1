@@ -48,9 +48,11 @@ class brain:
             else:
                 self.order_v_q.remove(instring[0])
         else:
-            if '->' in instring:
+            if '->' in instring and instring[2] in self.known_table:
                 self.working_mem.append((instring[0],instring[2]))
                 return 'Rule'+str(instring)
+            else:
+                return "Error.  One variable in this is undeclared."
         return 'Teach branch'+str(instring)
 
     def lister(self,instring):
