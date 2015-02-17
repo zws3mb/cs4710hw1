@@ -9,5 +9,6 @@ Teach !O -> U
 Teach A -> B
 Teach B -> D
 Teach A = True
+Teach O = True
 Query B&D
 Query U|B
