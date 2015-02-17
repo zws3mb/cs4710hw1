@@ -1,6 +1,19 @@
 __author__ = 'Zachary'
+class listtrack(list):
+    state=0
+    def __init__(self):
+        self.step=[]
+        self.phrase={0:'I KNOW THAT ',1:'BECAUSE',2:'I THUS KNOW THAT',3:'I KNOW IT IS NOT TRUE THAT',4:'BECAUSE IT IS NOT TRUE THAT',5:'THUS I CANNOT PROVE THAT'}
+        super(listtrack,self).__init__()
+    def append(self, p_object):
+        self.step.append(self.phrase[listtrack.state]+'('+p_object+')')
+        super(listtrack,self).append(p_object)
+    def __iadd__(self, other):
+        self.step.append(self.phrase[listtrack.state]+'('+other+')')
+        super(listtrack,self).__iadd__(other)
 
 class brain:
+
     def __init__(self):
         self.var_map={}
         self.known_table={}
@@ -10,6 +23,7 @@ class brain:
         self.orig_rule_exp=[]
         self.op_dict={'&':'and','|':'or','!':'not'}
         self.thought=''
+        self.subconscious=[]
     def teach(self,instring):
         if '=' in instring and instring[2] !='True' and instring[2] !='False':
             self.var_map[instring[0]]=instring[2]
@@ -69,11 +83,18 @@ class brain:
         return 'I THINK:'+str(eval(self.thought))
 
     def backchain(self,instr):
+
         for p1,p2 in self.working_mem:
             if instr == p2:
+
                 tobeval=[]
                 self.bevaluate_tree(p1,tobeval)
-                return eval(''.join(tobeval))
+                outcome= eval(''.join(tobeval))
+                if outcome:
+                    self.subconscious.append('BECAUSE ('+self.var_map[p2]+')')
+                else:
+                    self.subconscious.append('BECAUSE IT IS NOT TRUE THAT ('+self.var_map[p2]+')')
+                return outcome
         return False
     def bevaluate_tree(self,ptree,tobeval):
         current=ptree
@@ -108,9 +129,15 @@ class brain:
                 return self.op_dict[instr]
             elif instr in self.known_table:
                 if self.known_table[instr]:
+                    self.subconscious+='I KNOW THAT ('+self.var_map[instr]+')'
                     return self.known_table[instr]
                 else:
-                    return self.backchain(instr)
+                    val=self.backchain(instr)
+                    if val:
+                        self.subconscious+='I KNOW THAT ('+self.var_map[instr]+')'
+                    else:
+                        self.subconscious+='I CANNOT PROVE ('+self.var_map[instr]+')'
+                    return val
             # elif instr in self.var_map:
             #     return self.var_map[instr]
             # elif instr in self.working_mem:
@@ -138,6 +165,19 @@ class brain:
 
 
     def why(self,instring):
-        return instring
-    def express(self,instring):
-        return instring
+        self.subconscious=[]
+        tobeval=[]
+        self.bevaluate_tree(instring[0],tobeval)
+        #print self.subconscious
+        print ''.join([i for i in self.subconscious])
+        return eval(''.join(tobeval))
+    def clear(self,instring):
+        if instring == 'Yes':
+            self.var_map={}
+            self.known_table={}
+            self.working_mem=[]
+            self.order_q=[]
+            self.order_v_q=[]
+            self.orig_rule_exp=[]
+            self.op_dict={'&':'and','|':'or','!':'not'}
+            self.thought=''
