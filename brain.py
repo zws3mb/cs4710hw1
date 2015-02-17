@@ -35,8 +35,12 @@ class brain:
                 return 'Assignment'+str(instring)
 
             else:
-                print "Error: Variable " + str(instring[0]) + " already declared."
+                return "Error: Variable " + str(instring[0]) + " already declared."
         elif '=' in instring:
+
+            if instring[0] not in self.known_table:
+                return "Error: Variable " + str(instring[0]) + " must be declared first before given value."
+
             self.known_table[instring[0]]=eval(instring[2])
 
             if(eval(instring[2]) and instring[0] not in self.order_v_q):
@@ -181,6 +185,14 @@ class brain:
         self.bevaluate_tree(instring[0],tobeval)
         #print self.subconscious
         print ''.join([i for i in self.subconscious])
+        #outstring = (''.join([i for i in self.subconscious])).split(' ')
+        #output = ""
+        #for i in outstring:
+            #output+=(" " + (str(i)))
+            #if i.endswith(')'):
+                #print str(output)
+                #output = ""
+
         return eval(''.join(tobeval))
     def clear(self,instring):
         if instring == 'Yes':
