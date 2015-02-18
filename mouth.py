@@ -13,44 +13,54 @@ class Parser:
     def __init__(self,brain):
         self.commands={'Teach':brain.teach,'List':brain.lister,'Learn':brain.learn,'Query':brain.query,'Why':brain.why,'Clear':brain.clear}
         self.brain=brain
+
     def refine(self,instring,nodestack):
-        #print 'Refining:'+instring
-        for i in range(0,len(instring)):
+        print 'Refining:'+instring
+        i=nodestack[0][0]
+        while  nodestack[0][0] <= i and i <= nodestack[0][1]:
             if instring[i] =='(':
-                subtree=self.refine(instring[i+1:],nodestack)
+                subtree=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
                 nodestack.append(subtree)
-                break
-            if instring[i] ==')':
-                pass
+
+            elif instring[i] ==')':
+                go, to=nodestack[0]
+                nodestack[0]=(i+1,to)
+                return nodestack.pop()
             elif instring[i]=='!':
-                if len(nodestack)>0:
-                    ctree=nodestack.pop()
-                    if ctree.left ==None:
-                        ctree.left=node(None,self.refine(instring[i+1:],nodestack),'!')
-                    elif ctree.right==None:
-                        ctree.right=node(None,self.refine(instring[i+1:],nodestack),'!')
-                else:
-                    ctree=node(None,self.refine(instring[i+1:],nodestack),'!')
+                # if len(nodestack)>0:
+                #     ctree=nodestack.pop()
+                #     if ctree.left ==None:
+                #         ctree.left=node(None,self.refine(instring[i+1:],nodestack),'!')
+                #     elif ctree.right==None:
+                #         ctree.right=node(None,self.refine(instring[i+1:],nodestack),'!')
+                # else:
+                ctree=node(None,None,'!')
                 nodestack.append(ctree)
-                break
+                nodestack[len(nodestack)-1].right=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
+                nodestack[0]=(,len(instring))
+                return nodestack.pop()
             elif instring[i] == '&':
-                subtree=node(nodestack.pop(),self.refine(instring[i+1:],nodestack),'&')
+                subtree=node(nodestack[len(nodestack)-1],None,'&')
                 nodestack.append(subtree)
-                break
+                nodestack[len(nodestack)-1].right=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
+
             elif instring[i] == '|':
-                subtree=node(nodestack.pop(),self.refine(instring[i+1:],nodestack),'|')
+                subtree=node(nodestack[len(nodestack)-1],None,'|')
                 nodestack.append(subtree)
-                break
+                nodestack[len(nodestack)-1].right=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
+
             else:
-                if len(nodestack) >0:
-                    ctree=nodestack.pop()
-                    if ctree.left == None:
-                        ctree.left=instring[i]
-                    elif ctree.right==None:
-                        ctree.right=instring[i]
-                else:
-                    ctree=node(None,None,instring[i])
+                # if len(nodestack) >1:
+                #     ctree=nodestack.pop()
+                #     if ctree.left == None:
+                #         ctree.left=node(None,None,instring[i])
+                #     elif ctree.right==None:
+                #         ctree.right=node(None,None,instring[i])
+                # else:
+                nodestack[0]=(0,len(instring))
+                ctree=node(None,None,instring[i])
                 nodestack.append(ctree)
+            i=nodestack[0][0]+1
         return nodestack.pop()
 
     def parse(self,instring):
@@ -72,7 +82,8 @@ class Parser:
             if command=='Why':
                 brain.whyexp=word
             if '&' in word or '|' in word or '!' in word:
-                args.insert(0,self.refine(word,[]))
+                self.parenin=0
+                args.insert(0,self.refine(word,[(0,len(word)-1)]))
                 #print args
             elif '(' in word and ')' in word:
                 args.insert(0,word[word.rfind('(')+1:word.find(')')])
