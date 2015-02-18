@@ -16,7 +16,6 @@ Example:
 in: Teach S = “Sam likes Ice Cream”
 out: None
 
-Note: Once declared, variable cannot be redefined as new value.
 
 2) Teach <VAR> = <BOOL> 
 

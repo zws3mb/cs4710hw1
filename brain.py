@@ -14,6 +14,7 @@ class brain:
         self.thought=''
         self.subconscious=[]
         self.currentop=None
+        self.varMemory = []
 
     def teach(self,instring):
         self.currentop='Teach'
@@ -117,10 +118,11 @@ class brain:
                 tobeval=[]
                 self.bevaluate_tree(p1,tobeval)
                 outcome= eval(''.join(tobeval))
-                if outcome:
-                    self.subconscious.append('BECAUSE '+self.get_rule_string(p1))
-                else:
-                    self.subconscious.append('BECAUSE IT IS NOT TRUE THAT '+self.get_rule_string(p1))#('+self.get_rule_string(p1)+'->'+self.var_map[p2]+')')
+                if outcome and instr not in self.varMemory:
+                    self.subconscious.append('BECAUSE '+self.get_rule_string(p1)+", ")
+                elif instr not in self.varMemory:
+                    self.varMemory.append(instr)
+                    self.subconscious.append('BECAUSE IT IS NOT TRUE THAT '+self.get_rule_string(p1))+ ", " #('+self.get_rule_string(p1)+'->'+self.var_map[p2]+')')
                 return outcome
         return 'NORULE'
     def bevaluate_tree(self,ptree,tobeval):
@@ -174,16 +176,23 @@ class brain:
                         return val
                 elif self.currentop=='Why':
                     val=self.backchain(instr)
+                    #print str(instr)
                     if val=='NORULE':
-                        if self.known_table[instr]:
+                        if self.known_table[instr] and instr not in self.varMemory:
+                            self.varMemory.append(instr)
+                            #print "instr: " + str(instr) + " added to var mem"
                             self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+') \n')
-                        else:
+                        elif instr not in self.varMemory:
+                            self.varMemory.append(instr)
+                            #print "instr: " + str(instr) + " added to var mem"
                             self.subconscious.append('I CANNOT PROVE ('+self.var_map[instr]+') \n')
                         return self.known_table[instr]
-                    elif val:
-                        self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+')')
-                    else:
-                        self.subconscious.append('I CANNOT PROVE ('+self.var_map[instr]+')')
+                    elif val and instr not in self.varMemory:
+                        self.varMemory.append(instr)
+                        self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+') \n')
+                    elif instr not in self.varMemory:
+                        self.varMemory.append(instr)
+                        self.subconscious.append('I CANNOT PROVE ('+self.var_map[instr]+') \n')
                     return val
             # elif instr in self.var_map:
             #     return self.var_map[instr]
@@ -224,7 +233,7 @@ class brain:
             else:
                 out+=v
         out+=')'
-        print out
+        #print out
         return out
     def why(self,instring):
         self.currentop='Why'
@@ -235,14 +244,15 @@ class brain:
         output=eval(''.join(tobeval))
         if output:
             if len(self.subconscious)>1:
-                self.subconscious.append('THUS I KNOW THAT '+self.instring_to_english(self.whyexp))
+                self.subconscious.append('\nTHUS I KNOW THAT '+self.instring_to_english(self.whyexp)+'\n')
             self.subconscious.insert(0,str(output)+'\n')
         else:
             if len(self.subconscious)>1:
-                self.subconscious.append('THUS I KNOW IT IS NOT TRUE THAT '+self.instring_to_english(self.whyexp))
+                self.subconscious.append('\nTHUS I KNOW IT IS NOT TRUE THAT '+self.instring_to_english(self.whyexp)+'\n')
             self.subconscious.insert(0,str(output)+'\n')
         reversed=[i for i in self.subconscious[::-1]]
         #print self.subconscious
+        self.varMemory = []
         return ''.join(self.subconscious)
 
     def clear(self,instring):
