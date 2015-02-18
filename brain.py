@@ -125,7 +125,7 @@ class brain:
         return 'NORULE'
     def bevaluate_tree(self,ptree,tobeval):
         current=ptree
-        print 'Back Evaluating:'+str(ptree)
+        #print 'Back Evaluating:'+str(ptree)
         #self.subconscious.append(self.get_rule_string(ptree))
         if isinstance(current,basestring):
             self.back_thought(str(self.convert(current,'Query')),tobeval)
@@ -143,7 +143,7 @@ class brain:
             self.back_thought(')',tobeval)
 
     def convert(self,instr,flag):
-        print 'Converting: '+instr
+        #print 'Converting: '+instr
         if flag =='Learn':
             if instr in self.op_dict:
                 return self.op_dict[instr]
@@ -202,7 +202,7 @@ class brain:
     def evaluate_tree(self,ptree,exp):
         self.thought=''
         current=ptree
-        print 'Evaluating:'+str(ptree)
+        #print 'Evaluating:'+str(ptree)
         if isinstance(current,basestring):
             self.gather(str(self.convert(current,exp)))
         else:

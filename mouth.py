@@ -15,11 +15,12 @@ class Parser:
         self.brain=brain
 
     def refine(self,instring,nodestack):
-        print 'Refining:'+instring
+        #print 'Refining:'+instring
         i=nodestack[0][0]
-        while  nodestack[0][0] <= i and i <= nodestack[0][1]:
+        while i < nodestack[0][1]:
             if instring[i] =='(':
-                subtree=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
+                nodestack[0]=(i+1,len(instring))
+                subtree=self.refine(instring,nodestack)
                 nodestack.append(subtree)
 
             elif instring[i] ==')':
@@ -36,18 +37,27 @@ class Parser:
                 # else:
                 ctree=node(None,None,'!')
                 nodestack.append(ctree)
-                nodestack[len(nodestack)-1].right=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
-                nodestack[0]=(,len(instring))
+
+                if instring[i+1]=='(' or instring[i+1]=='!':
+                    nodestack[0]=(i+1,len(instring))
+                    nodestack[len(nodestack)-1].right=self.refine(instring,nodestack)
+                else:
+
+                    nodestack[len(nodestack)-1].right=node(None,None,instring[i+1])
+                    nodestack[0]=(i+2,len(instring))
+
                 return nodestack.pop()
             elif instring[i] == '&':
-                subtree=node(nodestack[len(nodestack)-1],None,'&')
+                subtree=node(nodestack.pop(),None,'&')
                 nodestack.append(subtree)
-                nodestack[len(nodestack)-1].right=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
+                nodestack[0]=(i+1,len(instring))
+                nodestack[len(nodestack)-1].right=self.refine(instring,nodestack)
 
             elif instring[i] == '|':
-                subtree=node(nodestack[len(nodestack)-1],None,'|')
+                subtree=node(nodestack.pop(),None,'|')
                 nodestack.append(subtree)
-                nodestack[len(nodestack)-1].right=self.refine(instring[i+1-nodestack[0][0]:],nodestack)
+                nodestack[0]=(i+1,len(instring))
+                nodestack[len(nodestack)-1].right=self.refine(instring,nodestack)
 
             else:
                 # if len(nodestack) >1:
@@ -57,10 +67,11 @@ class Parser:
                 #     elif ctree.right==None:
                 #         ctree.right=node(None,None,instring[i])
                 # else:
-                nodestack[0]=(0,len(instring))
+                #nodestack[0]=(0,len(instring))
                 ctree=node(None,None,instring[i])
                 nodestack.append(ctree)
-            i=nodestack[0][0]+1
+                nodestack[0]=(i+1,len(instring))
+            i=nodestack[0][0]
         return nodestack.pop()
 
     def parse(self,instring):
