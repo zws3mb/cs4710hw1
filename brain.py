@@ -23,7 +23,8 @@ class brain:
                 self.var_map[instring[0]]=instring[2]
                 self.known_table[instring[0]]=False
                 self.order_q.append(instring[0])
-                return 'Assignment'+str(instring)
+                return ''
+                #return 'Assignment'+str(instring)
 
             else:
                 return "Error: Variable " + str(instring[0]) + " already declared."
@@ -36,15 +37,18 @@ class brain:
 
             if(eval(instring[2].capitalize()) and instring[0] not in self.order_v_q):
                 self.order_v_q.append(instring[0])
-            else:
+            elif instring[0] in self.order_v_q:
                 self.order_v_q.remove(instring[0])
         else:
             if '->' in instring and instring[2] in self.known_table:
                 self.working_mem.append((instring[0],instring[2]))
-                return 'Rule'+str(instring)
+                return ''
+                #return 'Rule'+str(instring)
             else:
-                return "Error.  One variable in this is undeclared."
-        return 'Teach branch'+str(instring)
+                return ''
+                #return "Error.  One variable in this is undeclared."
+        return ''
+        #return 'Teach branch'+str(instring)
 
     def lister(self,instring):
         self.currentop='List'
@@ -59,6 +63,7 @@ class brain:
             outstring+='\t'+str(self.orig_rule_exp[i])+' -> '+self.working_mem[i][1]+'\n'
         #print outstring
         return outstring
+
     def learn(self,instring):
         self.currentop='Learn'
         change=True
@@ -69,7 +74,7 @@ class brain:
                 if prop1 in self.known_table:
                     if self.known_table[prop1] and not self.known_table[prop2]:
                         #print "This is the one"
-                        print str(prop2)+' is now True.'
+                        #print str(prop2)+' is now True.'
                         change=True
                         self.known_table[prop2] = True
                         #print(self.known_table[prop2])
@@ -79,7 +84,7 @@ class brain:
                 #         print str(prop1)+'is now False.'
                 #         self.known_table[prop1]=False
                 elif eval(self.evaluate_tree(prop1,'Learn')) and (not self.known_table[prop2]):
-                    print str(prop2)+' is now True.'
+                    #print str(prop2)+' is now True.'
                     self.known_table[prop2] = True
                     self.order_v_q.append(prop2)
 
@@ -95,8 +100,9 @@ class brain:
         self.currentop='Query'
         current=instring[0]
         self.evaluate_tree(current,'Query')
-        print str(self.thought)+'=>'
-        return 'I THINK:'+str(eval(self.thought))
+        #print str(self.thought)+'=>'
+        print self.thought
+        return 'I THINK: '+str(eval(self.thought))
     def get_rule_string(self,exp):
         for i in range(0,len(self.working_mem)):
             if exp == self.working_mem[i][0]:
@@ -119,7 +125,7 @@ class brain:
         return 'NORULE'
     def bevaluate_tree(self,ptree,tobeval):
         current=ptree
-        print 'Evaluating:'+str(ptree)
+        #print 'Evaluating:'+str(ptree)
         #self.subconscious.append(self.get_rule_string(ptree))
         if isinstance(current,basestring):
             self.back_thought(str(self.convert(current,'Query')),tobeval)
@@ -158,6 +164,8 @@ class brain:
                         return self.known_table[instr]
                     else:
                         val=self.backchain(instr)
+                        if val == "NORULE":
+                            return self.known_table[instr]
                         if val:
                             self.subconscious.append('I KNOW THAT ('+self.var_map[instr]+')')
                         else:
@@ -193,7 +201,7 @@ class brain:
     def evaluate_tree(self,ptree,exp):
         self.thought=''
         current=ptree
-        print 'Evaluating:'+str(ptree)
+        #print 'Evaluating:'+str(ptree)
         if isinstance(current,basestring):
             self.gather(str(self.convert(current,exp)))
         else:
@@ -215,6 +223,7 @@ class brain:
             else:
                 out+=v
         out+=')'
+        print out
         return out
     def why(self,instring):
         self.currentop='Why'

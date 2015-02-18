@@ -14,7 +14,7 @@ class Parser:
         self.commands={'Teach':brain.teach,'List':brain.lister,'Learn':brain.learn,'Query':brain.query,'Why':brain.why,'Clear':brain.clear}
         self.brain=brain
     def refine(self,instring,nodestack):
-        print 'Refining:'+instring
+        #print 'Refining:'+instring
         for i in range(0,len(instring)):
             if instring[i] =='(':
                 subtree=self.refine(instring[i+1:],nodestack)
@@ -73,7 +73,7 @@ class Parser:
                 brain.whyexp=word
             if '&' in word or '|' in word or '!' in word:
                 args.insert(0,self.refine(word,[]))
-                print args
+                #print args
             elif '(' in word and ')' in word:
                 args.insert(0,word[word.rfind('(')+1:word.find(')')])
             else:
