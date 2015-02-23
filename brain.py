@@ -102,8 +102,8 @@ class brain:
         current=instring[0]
         self.evaluate_tree(current,'Query')
         #print str(self.thought)+'=>'
-        print self.thought
-        return 'I THINK: '+str(eval(self.thought))
+        #print self.thought
+        return str(eval(self.thought)) + '\n'
     def get_rule_string(self,exp):
         for i in range(0,len(self.working_mem)):
             if exp == self.working_mem[i][0]:
@@ -121,8 +121,7 @@ class brain:
                 if outcome and instr not in self.varMemory:
                     self.subconscious.append('BECAUSE '+self.get_rule_string(p1)+", ")
                 elif instr not in self.varMemory:
-                    self.varMemory.append(instr)
-                    self.subconscious.append('BECAUSE IT IS NOT TRUE THAT '+self.get_rule_string(p1))+ ", " #('+self.get_rule_string(p1)+'->'+self.var_map[p2]+')')
+                    self.subconscious.append('BECAUSE IT IS NOT TRUE THAT '+ str(self.get_rule_string(p1))+ ", ") #('+self.get_rule_string(p1)+'->'+self.var_map[p2]+')')
                 return outcome
         return 'NORULE'
     def bevaluate_tree(self,ptree,tobeval):
